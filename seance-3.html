@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Séance 3 — Chaîne SDR complète : calibration et capture LF</title>
+<style>
+:root{
+  --bg:#f4f2ec; --surface:#ffffff; --surface-2:#eceae2;
+  --text:#1b1f1d; --text-dim:#5b6460; --accent:#0f6b5c; --accent-2:#b5742a;
+  --border:#dcd8cb; --mono:'JetBrains Mono', ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14181a; --surface:#1c2224; --surface-2:#232b2d;
+    --text:#e9ece9; --text-dim:#99a39c; --accent:#5fd3b5; --accent-2:#e3a65c;
+    --border:#2e3638; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14181a; --surface:#1c2224; --surface-2:#232b2d;
+  --text:#e9ece9; --text-dim:#99a39c; --accent:#5fd3b5; --accent-2:#e3a65c;
+  --border:#2e3638; color-scheme: dark;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:5rem;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6;padding-bottom:env(safe-area-inset-bottom,0px);}
+header{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--border);padding:.9rem 1.2rem;padding-top:calc(.9rem + env(safe-area-inset-top,0px));display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+header h1{font-size:1rem;margin:0;}
+header h1 span{color:var(--accent);font-family:var(--mono);font-size:.85rem;display:block;font-weight:600;}
+header a.back{font-size:.78rem;color:var(--text-dim);text-decoration:none;border:1px solid var(--border);padding:.3rem .7rem;border-radius:999px;}
+header a.back:hover{color:var(--accent);border-color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:2rem 1.2rem 5rem;}
+h2{font-size:1.1rem;color:var(--accent-2);text-transform:uppercase;letter-spacing:.06em;margin:2.2rem 0 .8rem;}
+h2.titre{color:var(--text);text-transform:none;letter-spacing:0;font-size:1.5rem;margin:.6rem 0 0;}
+h3{font-size:.95rem;color:var(--accent);margin:1.3rem 0 .4rem;}
+h3:first-child{margin-top:0;}
+p{margin:.5rem 0;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.5rem;}
+.badge{display:inline-block;font-family:var(--mono);font-size:.72rem;background:var(--surface-2);color:var(--accent);padding:.2rem .6rem;border-radius:6px;}
+.badge.materiel{color:var(--accent-2);}
+.meta-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
+.livrable{margin-top:1.5rem;padding:.8rem 1rem;background:var(--surface-2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;}
+.livrable b{color:var(--accent);}
+.alerte{margin:1rem 0;padding:.8rem 1rem;background:var(--surface-2);border-left:3px solid var(--accent-2);border-radius:0 8px 8px 0;}
+.alerte b{color:var(--accent-2);}
+.resultat{margin:.6rem 0;padding:.6rem .9rem;background:var(--surface-2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;font-size:.9rem;}
+.resultat b{color:var(--accent);}
+ol,ul{margin:.4rem 0;padding-left:1.2rem;}
+li{margin-bottom:.4rem;}
+code{font-family:var(--mono);font-size:.85em;background:var(--surface-2);padding:.1rem .3rem;border-radius:4px;}
+pre{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;overflow-x:auto;font-family:var(--mono);font-size:.78rem;line-height:1.5;margin:.6rem 0;}
+pre code{background:none;padding:0;font-size:inherit;}
+.overflow{overflow-x:auto;margin-top:.5rem;}
+table{width:100%;border-collapse:collapse;font-size:.85rem;}
+th,td{text-align:left;padding:.45rem .55rem;border-bottom:1px solid var(--border);vertical-align:top;}
+th{color:var(--text-dim);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;}
+.note{font-size:.85rem;color:var(--text-dim);}
+.nav-foot{display:flex;justify-content:space-between;margin-top:2.5rem;font-size:.85rem;}
+.nav-foot a{color:var(--text-dim);text-decoration:none;}
+.nav-foot a:hover{color:var(--accent);}
+.dump{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;font-family:var(--mono);font-size:.74rem;overflow-x:auto;white-space:pre;line-height:1.5;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Séance 3<span>Sécurité RFID</span></h1>
+  <a class="back" href="cours-securite-rfid.html">← Accueil</a>
+</header>
+<main>
+  <div class="meta-row">
+    <span class="badge">1h30</span>
+    <span class="badge materiel">🧰 NESDR Smart V5 · Ham It Up Nano · adaptateur SMA · câble micro-USB · MLA-30 Plus · PC</span>
+  </div>
+  <h2 class="titre">Chaîne SDR complète : calibration et capture LF</h2>
+  
+
+  <h2>Déroulé</h2>
+  <div class="card">
+    <div class="overflow"><table>
+      <tr><th>Durée</th><th>Contenu</th></tr>
+      <tr><td>10 min</td><td>Cours : calibration, modulation LF, aperçu HF</td></tr><tr><td>15 min</td><td>Assembler la chaîne avec le Ham It Up Nano</td></tr><tr><td>15 min</td><td>Configurer le décalage de fréquence (Shift/Offset)</td></tr><tr><td>20 min</td><td>Calibrer sur France Inter grandes ondes (162 kHz) et mesurer le PPM</td></tr><tr><td>20 min</td><td>Capturer un badge LF 125 kHz</td></tr><tr><td>5 min</td><td>Démonstration HF 13,56 MHz par l'enseignant</td></tr><tr><td>5 min</td><td>Auto-évaluation et livrable</td></tr>
+    </table></div>
+  </div>
+
+  <h2>Cours</h2>
+  <div class="card">
+    <h3>1. Lecture du spectre et calibration</h3>
+    <p>Le <b>spectre</b> affiche l'amplitude en fonction de la fréquence ; le <b>waterfall</b> empile ces spectres dans le temps. Un gain trop élevé sature le récepteur, un gain trop faible noie le signal dans le bruit. Même avec un TCXO, un léger écart de fréquence subsiste, exprimé en <b>PPM</b> (parties par million), qu'on corrige en comparant la fréquence affichée d'une émission connue à sa fréquence théorique.</p>
+    <h3>2. Modulation des badges LF</h3>
+    <p>Les badges 125 kHz codent leurs données par <b>ASK</b> (amplitude) ou <b>FSK</b> (fréquence). Standards courants : <b>EM4100</b> (lecture seule, trame 64 bits) et <b>HID Prox</b>. À 125 kHz, la largeur de bande utile est très étroite, ce qui facilite la capture une fois l'up-converter correctement calé.</p>
+    <h3>3. Aperçu du HF 13,56 MHz</h3>
+    <p>En HF, le lecteur émet une porteuse continue ; le tag répond par <i>modulation de charge</i>, visible comme des bandes latérales autour de la porteuse. Cette capture sera <b>démontrée par l'enseignant</b> en fin de séance plutôt que manipulée individuellement, faute de temps.</p>
+  </div>
+
+  <h2>Atelier guidé pas à pas</h2>
+  <div class="card">
+    <p><b>Objectif :</b> ajouter l'up-converter à la chaîne validée la semaine dernière, la calibrer, et capturer un vrai signal LF.</p>
+    <p><b>Matériel :</b> NESDR Smart V5, Ham It Up Nano, adaptateur SMA mâle-mâle, câble micro-USB, antenne <b>MLA-30 Plus</b>, PC.</p>
+
+    <h3>Étape 1 : assembler la chaîne</h3>
+    <p>Dans cet ordre précis, sans forcer : <b>antenne MLA-30 Plus → Ham It Up Nano → adaptateur SMA-SMA → clé NESDR</b>. Alimentez le Ham It Up Nano avec le câble micro-USB.</p>
+    <p class="note"><b>Pourquoi la MLA-30 Plus et pas le kit VHF-UHF ?</b> Le fouet VHF-UHF est inefficace en-dessous de 30 MHz ; la MLA-30 Plus est conçue pour cette plage.</p>
+
+    <h3>Étape 2 : connecter et détecter</h3>
+    <p>Reliez la clé NESDR au PC par USB et sélectionnez-la dans le logiciel.</p>
+    <p class="note"><b>Si rien n'apparaît :</b> autre port USB, revérifiez le driver Zadig.</p>
+
+    <h3>Étape 3 : configurer le décalage de fréquence</h3>
+    <ul>
+      <li><b>SDR#</b> : panneau <i>Source</i> → <i>Correction (ppm)</i> → cocher <b>Shift</b> → entrer <b>-125000000</b> (négatif, particularité de SDR#).</li>
+      <li><b>SDR++</b> : panneau <i>Source</i> → champ <b>Offset</b> → entrer <b>125000000</b> (positif).</li>
+    </ul>
+    <p>Entrez ensuite directement la <b>fréquence réelle visée</b> (ex. 162 000 Hz).</p>
+    <p class="note"><b>Pourquoi le négatif sur SDR# ?</b> SDR# calcule la fréquence matérielle comme <i>fréquence affichée − Shift</i>. Avec un Shift positif, impossible de descendre sous ~123,8 MHz affichés (symptôme caractéristique de l'erreur de signe).</p>
+    <p class="note"><b>Peigne de pics très réguliers sur tout l'écran :</b> presque certainement du bruit parasite, pas un vrai signal — vérifiez le signe du Shift/Offset.</p>
+
+    <h3>Étape 4 : calibrer sur un signal connu</h3>
+    <p>Tunez sur <b>162 000 Hz</b> (France Inter grandes ondes, émetteur d'Allouis, très puissant), mode <b>AM</b>, bande passante ~9000 Hz. Si le gain sature, réduisez le RF Gain.</p>
+    <div class="resultat">✓ Résultat attendu : pic net à 162 kHz et audio clair. Mesurez l'écart avec 162 000 Hz pour calculer votre correction PPM.</div>
+    <p class="note">Test optionnel : <b>DCF77</b> à 77,5 kHz (signal horaire allemand, plus faible, sans audio).</p>
+
+    <h3>Étape 5 : capturer un badge LF 125 kHz</h3>
+    <p>Approchez le badge/la carte d'un lecteur LF actif si disponible, ou chargez la capture de référence fournie par l'enseignant. Repérez la modulation sur le waterfall (ASK ou FSK) et comparez avec un diagramme théorique de trame EM4100.</p>
+
+    <h3>Étape 6 : démonstration HF (enseignant)</h3>
+    <p>L'enseignant règle le SDR sur 13,56 MHz et positionne l'antenne près d'un RC522 en cours de lecture, pour montrer la porteuse et ses bandes latérales.</p>
+  </div>
+
+  <h2>Auto-évaluation</h2>
+  <div class="card">
+    <div class="overflow"><table>
+      <tr><th style="text-align:left;">Compétence</th><th>Acquis</th><th>En cours</th><th>Non acquis</th></tr>
+      <tr><td>J'ai assemblé la chaîne complète sans forcer les connecteurs</td><td>☐</td><td>☐</td><td>☐</td></tr>
+      <tr><td>J'ai appliqué le bon décalage de fréquence (bon signe selon le logiciel)</td><td>☐</td><td>☐</td><td>☐</td></tr>
+      <tr><td>J'ai capté France Inter et calculé une correction PPM</td><td>☐</td><td>☐</td><td>☐</td></tr>
+      <tr><td>J'ai identifié une modulation ASK ou FSK sur le badge LF</td><td>☐</td><td>☐</td><td>☐</td></tr>
+    </table></div>
+  </div>
+
+  <div class="livrable"><b>Livrable :</b> schéma de câblage annoté + capture LF annotée (ASK ou FSK) + valeur de correction PPM</div>
+
+  <h2>Glossaire de la séance</h2>
+  <div class="card">
+    <div class="overflow"><table><tr><th>Acronyme</th><th>Signification</th></tr><tr><td><b>PPM</b></td><td>Parties Par Million</td></tr><tr><td><b>AM</b></td><td>Amplitude Modulation</td></tr><tr><td><b>ASK</b></td><td>Amplitude Shift Keying</td></tr><tr><td><b>FSK</b></td><td>Frequency Shift Keying</td></tr></table></div>
+  </div>
+
+  <div class="nav-foot">
+    <a href="seance-2.html">← Séance 2</a>
+    <a href="seance-4.html">Séance 4 : Arduino et RC522</a>
+  </div>
+</main>
+</body>
+</html>

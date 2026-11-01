@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Séance 1 — RFID : principes, fréquences, normes et menaces</title>
+<style>
+:root{
+  --bg:#f4f2ec; --surface:#ffffff; --surface-2:#eceae2;
+  --text:#1b1f1d; --text-dim:#5b6460; --accent:#0f6b5c; --accent-2:#b5742a;
+  --border:#dcd8cb; --mono:'JetBrains Mono', ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14181a; --surface:#1c2224; --surface-2:#232b2d;
+    --text:#e9ece9; --text-dim:#99a39c; --accent:#5fd3b5; --accent-2:#e3a65c;
+    --border:#2e3638; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14181a; --surface:#1c2224; --surface-2:#232b2d;
+  --text:#e9ece9; --text-dim:#99a39c; --accent:#5fd3b5; --accent-2:#e3a65c;
+  --border:#2e3638; color-scheme: dark;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:5rem;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6;padding-bottom:env(safe-area-inset-bottom,0px);}
+header{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--border);padding:.9rem 1.2rem;padding-top:calc(.9rem + env(safe-area-inset-top,0px));display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+header h1{font-size:1rem;margin:0;}
+header h1 span{color:var(--accent);font-family:var(--mono);font-size:.85rem;display:block;font-weight:600;}
+header a.back{font-size:.78rem;color:var(--text-dim);text-decoration:none;border:1px solid var(--border);padding:.3rem .7rem;border-radius:999px;}
+header a.back:hover{color:var(--accent);border-color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:2rem 1.2rem 5rem;}
+h2{font-size:1.1rem;color:var(--accent-2);text-transform:uppercase;letter-spacing:.06em;margin:2.2rem 0 .8rem;}
+h2.titre{color:var(--text);text-transform:none;letter-spacing:0;font-size:1.5rem;margin:.6rem 0 0;}
+h3{font-size:.95rem;color:var(--accent);margin:1.3rem 0 .4rem;}
+h3:first-child{margin-top:0;}
+p{margin:.5rem 0;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.5rem;}
+.badge{display:inline-block;font-family:var(--mono);font-size:.72rem;background:var(--surface-2);color:var(--accent);padding:.2rem .6rem;border-radius:6px;}
+.badge.materiel{color:var(--accent-2);}
+.meta-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
+.livrable{margin-top:1.5rem;padding:.8rem 1rem;background:var(--surface-2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;}
+.livrable b{color:var(--accent);}
+.alerte{margin:1rem 0;padding:.8rem 1rem;background:var(--surface-2);border-left:3px solid var(--accent-2);border-radius:0 8px 8px 0;}
+.alerte b{color:var(--accent-2);}
+.resultat{margin:.6rem 0;padding:.6rem .9rem;background:var(--surface-2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;font-size:.9rem;}
+.resultat b{color:var(--accent);}
+ol,ul{margin:.4rem 0;padding-left:1.2rem;}
+li{margin-bottom:.4rem;}
+code{font-family:var(--mono);font-size:.85em;background:var(--surface-2);padding:.1rem .3rem;border-radius:4px;}
+pre{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;overflow-x:auto;font-family:var(--mono);font-size:.78rem;line-height:1.5;margin:.6rem 0;}
+pre code{background:none;padding:0;font-size:inherit;}
+.overflow{overflow-x:auto;margin-top:.5rem;}
+table{width:100%;border-collapse:collapse;font-size:.85rem;}
+th,td{text-align:left;padding:.45rem .55rem;border-bottom:1px solid var(--border);vertical-align:top;}
+th{color:var(--text-dim);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;}
+.note{font-size:.85rem;color:var(--text-dim);}
+.nav-foot{display:flex;justify-content:space-between;margin-top:2.5rem;font-size:.85rem;}
+.nav-foot a{color:var(--text-dim);text-decoration:none;}
+.nav-foot a:hover{color:var(--accent);}
+.dump{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;font-family:var(--mono);font-size:.74rem;overflow-x:auto;white-space:pre;line-height:1.5;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Séance 1<span>Sécurité RFID</span></h1>
+  <a class="back" href="cours-securite-rfid.html">← Accueil</a>
+</header>
+<main>
+  <div class="meta-row">
+    <span class="badge">1h30</span>
+    
+  </div>
+  <h2 class="titre">RFID : principes, fréquences, normes et menaces</h2>
+  
+
+  <h2>Déroulé</h2>
+  <div class="card">
+    <div class="overflow"><table>
+      <tr><th>Durée</th><th>Contenu</th></tr>
+      <tr><td>10 min</td><td>Distribution des mallettes par binôme, inventaire contradictoire</td></tr><tr><td>5 min</td><td>Signature de la charte d'engagement</td></tr><tr><td>35 min</td><td>Cours : principes RFID — fréquences, normes, couplage</td></tr><tr><td>35 min</td><td>Cours : typologie des menaces et études de cas</td></tr><tr><td>5 min</td><td>Présentation du devoir à rendre sur Teams</td></tr>
+    </table></div>
+  </div>
+
+  <h2>En classe</h2>
+  <div class="card">
+    <p>Distribution des mallettes par binôme, inventaire contradictoire du matériel (voir <a href="materiel.html" style="color:var(--accent);">page Matériel</a>), signature de la charte d'engagement. Vous pouvez manipuler librement le badge et la carte fournis (dimensions, contre-jour, test NFC) pendant la présentation du cours ci-dessous.</p>
+  </div>
+
+  <h2>Cours</h2>
+  <div class="card">
+    <h3>1. Qu'est-ce que la RFID ?</h3>
+    <p>La RFID (<i>Radio Frequency IDentification</i>) permet d'identifier un objet ou une personne à distance, sans contact physique, grâce à des ondes radio. Un système RFID repose toujours sur deux éléments : une <b>étiquette</b> (tag/badge/carte), composée d'une puce et d'une antenne, et un <b>lecteur</b> qui émet un champ et interroge le tag.</p>
+    <p>On distingue les tags <b>passifs</b> (sans pile, entièrement alimentés par le champ du lecteur — c'est le cas du badge et de la carte fournis), les tags <b>actifs</b> (avec pile, portée bien plus grande) et les tags <b>semi-passifs</b> (pile pour la puce, mais communication alimentée par le lecteur).</p>
+
+    <h3>2. Deux principes physiques</h3>
+    <p><b>Champ proche (couplage inductif)</b> — utilisé en LF et HF. Le lecteur génère un champ magnétique alternatif ; la bobine du tag capte ce champ par induction, ce qui l'alimente en énergie. Le tag répond en faisant varier sa charge électrique (<i>modulation de charge</i>). Portée : de quelques cm à ~10 cm.</p>
+    <p><b>Champ lointain (rétrodiffusion)</b> — utilisé en UHF. Le lecteur émet une onde électromagnétique propagée ; l'antenne du tag (un dipôle) réfléchit une partie de cette onde en la modulant (<i>backscatter</i>). Portée : plusieurs mètres.</p>
+
+    <h3>3. Les trois familles de fréquences</h3>
+    <div class="overflow">
+      <table>
+        <tr><th>Bande</th><th>Fréquence</th><th>Principe</th><th>Portée</th><th>Normes types</th><th>Usages</th></tr>
+        <tr><td><b>LF</b></td><td>125–134 kHz</td><td>Couplage inductif</td><td>Quelques cm</td><td>EM4100, HID Prox</td><td>Puces animales, contrôle d'accès ancien, antidémarrage auto</td></tr>
+        <tr><td><b>HF</b></td><td>13,56 MHz</td><td>Couplage inductif</td><td>~10 cm</td><td>ISO 14443 A/B (Mifare), ISO 15693</td><td>Transport, paiement sans contact, badges NFC, passeports</td></tr>
+        <tr><td><b>UHF</b></td><td>860–960 MHz</td><td>Rétrodiffusion</td><td>Plusieurs mètres</td><td>ISO 18000-6C / EPC Gen2</td><td>Logistique, inventaire, péage, antivol magasin</td></tr>
+      </table>
+    </div>
+
+    <h3>4. Repère pratique</h3>
+    <p>Le NFC d'un smartphone fonctionne exclusivement en <b>HF (13,56 MHz)</b>. C'est un moyen simple de distinguer une carte HF d'un badge LF, sans matériel supplémentaire.</p>
+
+    <h3>5. Pourquoi la RFID est une cible</h3>
+    <p>Un tag RFID passif répond à <b>toute</b> interrogation d'un lecteur compatible, sans action volontaire du porteur. Cette absence de contact visuel et de consentement explicite est à l'origine de la plupart des attaques ci-dessous.</p>
+
+    <h3>6. Typologie des attaques</h3>
+    <div class="overflow">
+      <table>
+        <tr><th>Attaque</th><th>Principe</th><th>Prérequis attaquant</th></tr>
+        <tr><td><b>Eavesdropping</b></td><td>Capter passivement l'échange lecteur ↔ tag</td><td>Antenne/SDR à proximité</td></tr>
+        <tr><td><b>Skimming</b></td><td>Lire un tag à l'insu du porteur</td><td>Proximité physique</td></tr>
+        <tr><td><b>Clonage</b></td><td>Dupliquer l'UID/les données sur un support vierge</td><td>Lecture préalable réussie + support programmable</td></tr>
+        <tr><td><b>Rejeu</b></td><td>Retransmettre une trame capturée</td><td>Capture valide, pas d'anti-rejeu</td></tr>
+        <tr><td><b>Attaque relais</b></td><td>Faire communiquer tag et lecteur à distance via deux complices</td><td>Deux relais synchronisés</td></tr>
+        <tr><td><b>Brouillage</b></td><td>Saturer la bande pour empêcher toute lecture</td><td>Émetteur sur la bande ciblée</td></tr>
+      </table>
+    </div>
+
+    <h3>7. Le cas Mifare Classic (Crypto1)</h3>
+    <p>Le chiffrement propriétaire <b>Crypto1</b> des cartes Mifare Classic présente des faiblesses connues depuis plus d'une décennie (attaques <i>darkside</i> et <i>nested authentication</i>, détaillées en séance 10). La carte fournie dans la mallette doit être traitée comme non protégée par défaut.</p>
+
+    <h3>8. Études de cas</h3>
+    <p><b>Titres de transport</b> — l'UID et parfois le solde sont lisibles par tout lecteur compatible.</p>
+    <p><b>Badges hôtel</b> — souvent Mifare Classic avec clés par défaut non changées, vulnérables au clonage en quelques secondes.</p>
+    <p><b>Passeports biométriques</b> — protégés par <b>BAC</b> (<i>Basic Access Control</i>, norme <b>ICAO</b>), limitant la lecture aux porteurs ayant un accès visuel au document.</p>
+  </div>
+
+  <h2>Travail à la maison (devoir)</h2>
+  <div class="card">
+    <p>Les ateliers pratiques de cette double séance sont à réaliser <b>à la maison</b>, via Teams :</p>
+    <ul>
+      <li><b>Partie 1</b> — test NFC du badge/carte, fiche de synthèse des 3 familles RFID → <i>livrable-seance-1.docx</i>.</li>
+      <li><b>Partie 2</b> — cartographie menace/prérequis/impact/contre-mesure sur 4 scénarios → <i>trame-devoir-2-seance2.docx</i>.</li>
+    </ul>
+    <p class="note">Lien du devoir Teams : à compléter.</p>
+  </div>
+
+  <div class="livrable"><b>Livrable (maison) :</b> fiche de synthèse RFID + cartographie menace des 4 scénarios</div>
+
+  <h2>Glossaire de la séance</h2>
+  <div class="card">
+    <div class="overflow"><table>
+      <tr><th>Acronyme</th><th>Signification</th></tr>
+      <tr><td><b>LF</b></td><td>Low Frequency — 125–134 kHz</td></tr>
+      <tr><td><b>HF</b></td><td>High Frequency — 13,56 MHz</td></tr>
+      <tr><td><b>UHF</b></td><td>Ultra High Frequency — 860–960 MHz</td></tr>
+      <tr><td><b>ISO</b></td><td>International Organization for Standardization</td></tr>
+      <tr><td><b>NFC</b></td><td>Near Field Communication — HF 13,56 MHz</td></tr>
+      <tr><td><b>UID</b></td><td>Unique IDentifier</td></tr>
+      <tr><td><b>CR80</b></td><td>Format standard des cartes plastiques (85,6 × 54 mm)</td></tr>
+      <tr><td><b>BAC</b></td><td>Basic Access Control</td></tr>
+      <tr><td><b>ICAO</b></td><td>International Civil Aviation Organization</td></tr>
+    </table></div>
+  </div>
+
+  <div class="nav-foot">
+    <a href="cours-securite-rfid.html">Accueil</a>
+    <a href="seance-2.html">Séance 2 : prise en main du SDR</a>
+  </div>
+</main>
+</body>
+</html>

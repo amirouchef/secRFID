@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Séance 7 — Arduino + RC522 : câblage, lecture d’UID et liste blanche</title>
+<style>
+:root{
+  --bg:#f4f2ec; --surface:#ffffff; --surface-2:#eceae2;
+  --text:#1b1f1d; --text-dim:#5b6460; --accent:#0f6b5c; --accent-2:#b5742a;
+  --border:#dcd8cb; --mono:'JetBrains Mono', ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14181a; --surface:#1c2224; --surface-2:#232b2d;
+    --text:#e9ece9; --text-dim:#99a39c; --accent:#5fd3b5; --accent-2:#e3a65c;
+    --border:#2e3638; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14181a; --surface:#1c2224; --surface-2:#232b2d;
+  --text:#e9ece9; --text-dim:#99a39c; --accent:#5fd3b5; --accent-2:#e3a65c;
+  --border:#2e3638; color-scheme: dark;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:5rem;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6;padding-bottom:env(safe-area-inset-bottom,0px);}
+header{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--border);padding:.9rem 1.2rem;padding-top:calc(.9rem + env(safe-area-inset-top,0px));display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+header h1{font-size:1rem;margin:0;}
+header h1 span{color:var(--accent);font-family:var(--mono);font-size:.85rem;display:block;font-weight:600;}
+header a.back{font-size:.78rem;color:var(--text-dim);text-decoration:none;border:1px solid var(--border);padding:.3rem .7rem;border-radius:999px;}
+header a.back:hover{color:var(--accent);border-color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:2rem 1.2rem 5rem;}
+h2{font-size:1.1rem;color:var(--accent-2);text-transform:uppercase;letter-spacing:.06em;margin:2.2rem 0 .8rem;}
+h2.titre{color:var(--text);text-transform:none;letter-spacing:0;font-size:1.5rem;margin:.6rem 0 0;}
+h3{font-size:.95rem;color:var(--accent);margin:1.3rem 0 .4rem;}
+h3:first-child{margin-top:0;}
+p{margin:.5rem 0;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.5rem;}
+.badge{display:inline-block;font-family:var(--mono);font-size:.72rem;background:var(--surface-2);color:var(--accent);padding:.2rem .6rem;border-radius:6px;}
+.livrable{margin-top:1.5rem;padding:.8rem 1rem;background:var(--surface-2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;}
+.livrable b{color:var(--accent);}
+.alerte{margin:1rem 0;padding:.8rem 1rem;background:var(--surface-2);border-left:3px solid var(--accent-2);border-radius:0 8px 8px 0;}
+.alerte b{color:var(--accent-2);}
+ol,ul{margin:.4rem 0;padding-left:1.2rem;}
+li{margin-bottom:.4rem;}
+code{font-family:var(--mono);font-size:.85em;background:var(--surface-2);padding:.1rem .3rem;border-radius:4px;}
+pre{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;overflow-x:auto;font-family:var(--mono);font-size:.78rem;line-height:1.5;margin:.6rem 0;}
+pre code{background:none;padding:0;font-size:inherit;}
+.overflow{overflow-x:auto;margin-top:.5rem;}
+table{width:100%;border-collapse:collapse;font-size:.85rem;}
+th,td{text-align:left;padding:.45rem .55rem;border-bottom:1px solid var(--border);vertical-align:top;}
+th{color:var(--text-dim);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;}
+.note{font-size:.85rem;color:var(--text-dim);}
+.nav-foot{display:flex;justify-content:space-between;margin-top:2.5rem;font-size:.85rem;}
+.nav-foot a{color:var(--text-dim);text-decoration:none;}
+.nav-foot a:hover{color:var(--accent);}
+</style>
+</head>
+<body>
+<header>
+  <h1>Séance 7<span>Sécurité RFID</span></h1>
+  <a class="back" href="cours-securite-rfid.html">← Accueil</a>
+</header>
+<main>
+  <span class="badge">1h30</span>
+  <h2 class="titre">Arduino + RC522 : câblage, lecture d’UID et liste blanche</h2>
+  <p class="note">Fil rouge du cours : à partir de cette séance, vous construisez un contrôle d’accès Arduino que vous attaquerez en séance 6, approfondirez en séance 7, auditerez en séance 10 et sécuriserez en séance 11.</p>
+
+  <h2>Déroulé</h2>
+  <div class="card">
+    <div class="overflow"><table>
+      <tr><th>Durée</th><th>Contenu</th></tr>
+      <tr><td>15 min</td><td>Cours : SPI, bibliothèque, vocabulaire, fréquences</td></tr>
+      <tr><td>20 min</td><td>Câblage et validation du module avec DumpInfo</td></tr>
+      <tr><td>15 min</td><td>Lecture de l’UID et du type de tag</td></tr>
+      <tr><td>25 min</td><td>Liste blanche avec LED verte et rouge</td></tr>
+      <tr><td>10 min</td><td>Débrief sécurité</td></tr>
+      <tr><td>5 min</td><td>Finalisation du livrable</td></tr>
+    </table></div>
+  </div>
+
+  <h2>Cours</h2>
+  <div class="card">
+    <h3>1. Le protocole SPI</h3>
+    <p>Le RC522 communique avec l’Arduino via <b>SPI</b>, un bus série synchrone à 4 fils : <b>MOSI</b> (données maître → esclave), <b>MISO</b> (données esclave → maître), <b>SCK</b> (horloge) et <b>SS/CS</b> (sélection du périphérique, noté <b>NSS</b> ou <b>SDA</b> sur le module).</p>
+    <h3>2. La bibliothèque MFRC522</h3>
+    <p>Elle expose des fonctions haut niveau comme <code>PICC_IsNewCardPresent()</code> et <code>PICC_ReadCardSerial()</code> pour détecter puis lire l’UID d’un tag sans gérer le protocole ISO 14443 bas niveau.</p>
+    <h3>3. Vocabulaire ISO 14443</h3>
+    <p>La norme distingue le <b>PCD</b> (<i>Proximity Coupling Device</i>, le lecteur, ici le RC522) et le <b>PICC</b> (<i>Proximity Integrated Circuit Card</i>, le tag, ici le badge ou la carte). Lors de la détection, le PICC annonce son type par la valeur <b>SAK</b>, que la bibliothèque traduit en nom lisible.</p>
+    <h3>4. Fréquences et familles de tags</h3>
+    <p><b>125 kHz</b> (EM4100) : identifiant fixe, sans cryptographie. <b>13,56 MHz</b> (MIFARE, NFC, ISO 14443) : mémoire et mécanismes d’authentification. Le RC522 ne lit que le 13,56 MHz : un badge 125 kHz reste invisible pour lui.</p>
+    <h3>5. UID : identifier n’est pas authentifier</h3>
+    <p>L’UID est lu en clair par n’importe quel lecteur. Il dit « qui je prétends être », pas « je le prouve ». Gardez cette idée en tête jusqu’à la séance 9.</p>
+  </div>
+
+  <h2>Atelier</h2>
+  <div class="card">
+    <p><b>Objectif :</b> câbler le RC522, lire l’UID et le type du badge et de la carte, puis construire une liste blanche signalée par deux LED.</p>
+    <div class="alerte"><b>Alimentation : 3,3 V uniquement.</b> Le module se branche sur la broche <code>3.3V</code> de l’Arduino, jamais sur le 5 V, au risque de le détruire. Câblez l’Arduino débranché de l’USB et faites vérifier le montage avant de le brancher.</div>
+
+    <h3>Étape 1 : câbler le module</h3>
+    <div class="overflow"><table>
+      <tr><th>Module SBC-RFID-RC522</th><th>Arduino UNO R3</th></tr>
+      <tr><td><b>VCC</b></td><td><b>3.3V</b></td></tr>
+      <tr><td><b>GND</b></td><td>GND</td></tr>
+      <tr><td><b>RST</b></td><td>D9</td></tr>
+      <tr><td><b>NSS</b> (aussi noté SDA, SS ou CS)</td><td>D10</td></tr>
+      <tr><td><b>MOSI</b></td><td>D11</td></tr>
+      <tr><td><b>MISO</b></td><td>D12</td></tr>
+      <tr><td><b>SCK</b></td><td>D13</td></tr>
+      <tr><td><b>IRQ</b></td><td>non connecté</td></tr>
+    </table></div>
+    <p class="note">Repérez les broches par les noms inscrits sur la carte, pas par leur position : l’ordre varie selon les fabricants.</p>
+
+    <h3>Étape 2 : installer la bibliothèque</h3>
+    <p>IDE Arduino : <i>Croquis → Inclure une bibliothèque → Gérer les bibliothèques</i>, rechercher <b>MFRC522</b> (auteur : GithubCommunity), puis <i>Installer</i>.</p>
+
+    <h3>Étape 3 : valider le module avec DumpInfo</h3>
+    <p>Ouvrez <i>Fichier → Exemples → MFRC522 → DumpInfo</i>, choisissez <i>Arduino Uno</i> et le bon port, téléversez, puis ouvrez le moniteur série. Vous devez lire <code>Firmware Version: 0x91</code> ou <code>0x92</code>. Avec <code>0x00</code> ou <code>0xFF</code>, le câblage est en cause.</p>
+
+    <h3>Étape 4 : lire l’UID et le type de tag</h3>
+    <p>Téléversez ce sketch, moniteur série à 9600 bauds, puis présentez le badge, puis la carte (à 2-3 cm du module). Relevez les deux UID et les deux types.</p>
+<pre><code>#include &lt;SPI.h&gt;
+#include &lt;MFRC522.h&gt;
+
+#define SS_PIN 10    // broche NSS du module
+#define RST_PIN 9
+
+MFRC522 rfid(SS_PIN, RST_PIN);
+
+void setup() {
+  Serial.begin(9600);
+  SPI.begin();            // démarre le bus SPI
+  rfid.PCD_Init();        // initialise le lecteur (PCD)
+  Serial.println(F("Presentez un badge ou une carte..."));
+}
+
+void loop() {
+  // sortir si aucun tag n'est présenté ou si la lecture échoue
+  if (!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()) return;
+
+  // type du tag, déduit de la valeur SAK
+  MFRC522::PICC_Type type = rfid.PICC_GetType(rfid.uid.sak);
+  Serial.print(F("Type : "));
+  Serial.println(rfid.PICC_GetTypeName(type));
+
+  // affichage de l'UID en hexadécimal, octet par octet
+  Serial.print(F("UID  : "));
+  for (byte i = 0; i &lt; rfid.uid.size; i++) {
+    if (rfid.uid.uidByte[i] &lt; 0x10) Serial.print("0");
+    Serial.print(rfid.uid.uidByte[i], HEX);
+    if (i &lt; rfid.uid.size - 1) Serial.print(":");
+  }
+  Serial.println();
+
+  rfid.PICC_HaltA();       // met le tag en veille
+  rfid.PCD_StopCrypto1();  // coupe l'éventuelle session chiffrée
+}</code></pre>
+
+    <h3>Étape 5 : liste blanche avec LED</h3>
+    <p><b>Rappel : fonctionnement de la platine d’essai</b></p>
+    <ul>
+      <li>La platine compte <b>30 colonnes</b> numérotées. Chaque colonne comporte deux groupes de 5 trous : <b>a à e</b> et <b>f à j</b>.</li>
+      <li>Les 5 trous d’un même groupe sont reliés entre eux. La rainure centrale isole a-e de f-j, et deux colonnes différentes ne sont jamais reliées.</li>
+      <li>Les deux <b>rails</b> latéraux (+ rouge, − bleu) sont reliés sur toute leur longueur. Ils servent ici de ligne de masse (GND). Sur certains modèles le rail est coupé au milieu : vérifiez-le avant de vous y fier.</li>
+      <li>Le courant ne circule que si les composants forment une boucle fermée : sortie de l’Arduino, résistance, LED, retour vers GND.</li>
+    </ul>
+    <p><b>Composants :</b> la résistance de 220 Ω (bandes rouge, rouge, marron) n’a pas de sens de branchement et limite le courant à environ 15 mA. La LED, elle, est polarisée : la <b>patte longue</b> est l’<b>anode</b> (+, côté résistance), la patte courte (côté plat du boîtier) est la <b>cathode</b> (−, côté GND). Sans résistance, la LED et la broche de l’Arduino risquent d’être détruites.</p>
+    <div class="overflow"><table>
+      <tr><th>Élément</th><th>De</th><th>Vers</th></tr>
+      <tr><td>Fil noir</td><td>broche GND de l’Arduino (à côté de D13)</td><td>rail −</td></tr>
+      <tr><td>Fil (LED verte)</td><td>D5</td><td>colonne 5, trou a</td></tr>
+      <tr><td>Résistance 220 Ω</td><td>colonne 5, trou b</td><td>colonne 8, trou b</td></tr>
+      <tr><td>LED verte</td><td>anode : colonne 8, trou c</td><td>cathode : colonne 9, trou c</td></tr>
+      <tr><td>Fil noir</td><td>colonne 9, trou e</td><td>rail −</td></tr>
+      <tr><td>Fil (LED rouge)</td><td>D6</td><td>colonne 15, trou a</td></tr>
+      <tr><td>Résistance 220 Ω</td><td>colonne 15, trou b</td><td>colonne 18, trou b</td></tr>
+      <tr><td>LED rouge</td><td>anode : colonne 18, trou c</td><td>cathode : colonne 19, trou c</td></tr>
+      <tr><td>Fil noir</td><td>colonne 19, trou e</td><td>rail −</td></tr>
+    </table></div>
+    <p class="note">Chemin du courant pour la LED verte : D5, colonne 5, résistance, colonne 8, anode, cathode, colonne 9, rail −, GND. Le module RC522 reste câblé comme à l’étape 1 ; ne reliez pas sa broche 3.3V aux rails.</p>
+    <p><b>Vérification avant la liste blanche :</b> USB débranché, contrôlez le sens des LED et la position des résistances. Puis testez chaque LED seule avec <i>Fichier → Exemples → 01.Basics → Blink</i> en remplaçant <code>LED_BUILTIN</code> par <code>5</code>, puis par <code>6</code>. Si une LED ne s’allume pas, retournez-la.</p>
+    <p>Remplacez l’UID d’exemple par celui de <b>votre badge</b> relevé à l’étape 4, puis testez avec le badge et avec la carte. Commentez chaque bloc dans vos propres mots : c’est une partie du livrable.</p>
+<pre><code>#include &lt;SPI.h&gt;
+#include &lt;MFRC522.h&gt;
+
+#define SS_PIN 10
+#define RST_PIN 9
+const byte LED_VERTE = 5;
+const byte LED_ROUGE = 6;
+
+MFRC522 rfid(SS_PIN, RST_PIN);
+
+// UID autorisé : A REMPLACER par celui de votre badge
+byte uidAutorise[4] = {0xA3, 0x5F, 0x12, 0x9C};
+
+void setup() {
+  Serial.begin(9600);
+  SPI.begin();
+  rfid.PCD_Init();
+  pinMode(LED_VERTE, OUTPUT);
+  pinMode(LED_ROUGE, OUTPUT);
+}
+
+void loop() {
+  if (!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()) return;
+
+  // autorisé si la taille et tous les octets de l'UID correspondent
+  bool autorise = (rfid.uid.size == sizeof(uidAutorise)) &amp;&amp;
+                  (memcmp(rfid.uid.uidByte, uidAutorise, sizeof(uidAutorise)) == 0);
+
+  Serial.println(autorise ? F("ACCES AUTORISE") : F("ACCES REFUSE"));
+  digitalWrite(autorise ? LED_VERTE : LED_ROUGE, HIGH);
+  delay(2000);
+  digitalWrite(LED_VERTE, LOW);
+  digitalWrite(LED_ROUGE, LOW);
+
+  rfid.PICC_HaltA();
+  rfid.PCD_StopCrypto1();
+}</code></pre>
+
+    <h3>Dépannage</h3>
+    <ul>
+      <li><b>Rien ne s’affiche :</b> vérifiez NSS→D10 et RST→D9, puis MOSI et MISO, souvent inversés.</li>
+      <li><b>Caractères illisibles :</b> le moniteur série n’est pas réglé sur 9600 bauds.</li>
+      <li><b>Lecture intermittente :</b> broches du module non soudées ou mal soudées.</li>
+      <li><b>LED muette :</b> sens de la LED inversé (patte longue côté résistance).</li>
+    </ul>
+
+    <div class="alerte"><b>Cadre d’usage.</b> Ne lisez que les badges et cartes fournis pour le TP ou vos propres cartes, avec le consentement de leur propriétaire. Lire le badge d’un tiers sans son accord est interdit. Le cadre légal est détaillé en séance 6.</div>
+  </div>
+
+  <h2>Débrief sécurité</h2>
+  <div class="card">
+    <p>Répondez par écrit, en 2 à 3 phrases chacune :</p>
+    <ol>
+      <li>Qu’est-ce qui empêche une personne qui connaît l’UID de votre badge d’ouvrir votre système ? <i>(séance 6)</i></li>
+      <li>Que pourrait faire un attaquant équipé d’un lecteur de poche près d’un porteur de badge ? <i>(séance 10)</i></li>
+      <li>Comment rendre cette liste blanche moins fragile ? <i>(séance 11)</i></li>
+    </ol>
+  </div>
+
+  <div class="livrable"><b>Livrable :</b> code source commenté (étapes 4 et 5), UID et type du badge et de la carte (hexadécimal, séparés par « : »), capture du moniteur série, photo du montage avec LED, réponses au débrief.</div>
+
+  <h2>Glossaire de la séance</h2>
+  <div class="card">
+    <div class="overflow"><table>
+      <tr><th>Terme</th><th>Signification</th></tr>
+      <tr><td><b>SPI</b></td><td>Serial Peripheral Interface : bus série utilisé entre l’Arduino et le RC522</td></tr>
+      <tr><td><b>MOSI</b></td><td>Master Out Slave In : données du maître vers l’esclave</td></tr>
+      <tr><td><b>MISO</b></td><td>Master In Slave Out : données de l’esclave vers le maître</td></tr>
+      <tr><td><b>SCK</b></td><td>Serial Clock : horloge du bus SPI</td></tr>
+      <tr><td><b>NSS / SS / CS / SDA</b></td><td>Noms de la ligne de sélection du périphérique sur le bus SPI, selon les fabricants</td></tr>
+      <tr><td><b>PCD</b></td><td>Proximity Coupling Device : le lecteur, ici le RC522</td></tr>
+      <tr><td><b>PICC</b></td><td>Proximity Integrated Circuit Card : le tag, ici le badge ou la carte</td></tr>
+      <tr><td><b>UID</b></td><td>Unique IDentifier : numéro d’identification du tag (4, 7 ou 10 octets), lisible sans authentification</td></tr>
+      <tr><td><b>SAK</b></td><td>Select Acknowledge : valeur renvoyée par le tag qui permet d’identifier son type</td></tr>
+      <tr><td><b>ISO 14443</b></td><td>Norme des cartes sans contact de proximité à 13,56 MHz</td></tr>
+      <tr><td><b>MIFARE</b></td><td>Famille de puces sans contact à 13,56 MHz ; la Classic 1K est la plus répandue</td></tr>
+    </table></div>
+  </div>
+
+  <div class="nav-foot">
+    <a href="seance-3.html">← Séance 3</a>
+    <a href="seance-5.html">Séance 5 : secteurs Mifare Classic</a>
+  </div>
+</main>
+</body>
+</html>

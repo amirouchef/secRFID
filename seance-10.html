@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Séance 10 — Attaques avancées (étude de cas)</title>
+<style>
+:root{
+  --bg:#f4f2ec; --surface:#ffffff; --surface-2:#eceae2;
+  --text:#1b1f1d; --text-dim:#5b6460; --accent:#0f6b5c; --accent-2:#b5742a;
+  --border:#dcd8cb; --mono:'JetBrains Mono', ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14181a; --surface:#1c2224; --surface-2:#232b2d;
+    --text:#e9ece9; --text-dim:#99a39c; --accent:#5fd3b5; --accent-2:#e3a65c;
+    --border:#2e3638; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14181a; --surface:#1c2224; --surface-2:#232b2d;
+  --text:#e9ece9; --text-dim:#99a39c; --accent:#5fd3b5; --accent-2:#e3a65c;
+  --border:#2e3638; color-scheme: dark;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:5rem;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6;padding-bottom:env(safe-area-inset-bottom,0px);}
+header{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--border);padding:.9rem 1.2rem;padding-top:calc(.9rem + env(safe-area-inset-top,0px));display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+header h1{font-size:1rem;margin:0;}
+header h1 span{color:var(--accent);font-family:var(--mono);font-size:.85rem;display:block;font-weight:600;}
+header a.back{font-size:.78rem;color:var(--text-dim);text-decoration:none;border:1px solid var(--border);padding:.3rem .7rem;border-radius:999px;}
+header a.back:hover{color:var(--accent);border-color:var(--accent);}
+main{max-width:760px;margin:0 auto;padding:2rem 1.2rem 5rem;}
+h2{font-size:1.1rem;color:var(--accent-2);text-transform:uppercase;letter-spacing:.06em;margin:2.2rem 0 .8rem;}
+h2.titre{color:var(--text);text-transform:none;letter-spacing:0;font-size:1.5rem;margin:.6rem 0 0;}
+h3{font-size:.95rem;color:var(--accent);margin:1.3rem 0 .4rem;}
+h3:first-child{margin-top:0;}
+p{margin:.5rem 0;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.5rem;}
+.badge{display:inline-block;font-family:var(--mono);font-size:.72rem;background:var(--surface-2);color:var(--accent);padding:.2rem .6rem;border-radius:6px;}
+.badge.materiel{color:var(--accent-2);}
+.meta-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
+.livrable{margin-top:1.5rem;padding:.8rem 1rem;background:var(--surface-2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;}
+.livrable b{color:var(--accent);}
+.alerte{margin:1rem 0;padding:.8rem 1rem;background:var(--surface-2);border-left:3px solid var(--accent-2);border-radius:0 8px 8px 0;}
+.alerte b{color:var(--accent-2);}
+.resultat{margin:.6rem 0;padding:.6rem .9rem;background:var(--surface-2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;font-size:.9rem;}
+.resultat b{color:var(--accent);}
+ol,ul{margin:.4rem 0;padding-left:1.2rem;}
+li{margin-bottom:.4rem;}
+code{font-family:var(--mono);font-size:.85em;background:var(--surface-2);padding:.1rem .3rem;border-radius:4px;}
+pre{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;overflow-x:auto;font-family:var(--mono);font-size:.78rem;line-height:1.5;margin:.6rem 0;}
+pre code{background:none;padding:0;font-size:inherit;}
+.overflow{overflow-x:auto;margin-top:.5rem;}
+table{width:100%;border-collapse:collapse;font-size:.85rem;}
+th,td{text-align:left;padding:.45rem .55rem;border-bottom:1px solid var(--border);vertical-align:top;}
+th{color:var(--text-dim);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;}
+.note{font-size:.85rem;color:var(--text-dim);}
+.nav-foot{display:flex;justify-content:space-between;margin-top:2.5rem;font-size:.85rem;}
+.nav-foot a{color:var(--text-dim);text-decoration:none;}
+.nav-foot a:hover{color:var(--accent);}
+.dump{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;font-family:var(--mono);font-size:.74rem;overflow-x:auto;white-space:pre;line-height:1.5;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Séance 10<span>Sécurité RFID</span></h1>
+  <a class="back" href="cours-securite-rfid.html">← Accueil</a>
+</header>
+<main>
+  <div class="meta-row">
+    <span class="badge">1h30</span>
+    
+  </div>
+  <h2 class="titre">Attaques avancées (étude de cas)</h2>
+  
+
+  <h2>Déroulé</h2>
+  <div class="card">
+    <div class="overflow"><table>
+      <tr><th>Durée</th><th>Contenu</th></tr>
+      <tr><td>20 min</td><td>Cours : attaques Crypto1 (darkside, nested authentication)</td></tr><tr><td>15 min</td><td>Cours : attaque relais, outils dédiés</td></tr><tr><td>25 min</td><td>Visionnage et analyse d'une démonstration commentée</td></tr><tr><td>20 min</td><td>Analyse en groupe des prérequis et contre-mesures</td></tr><tr><td>10 min</td><td>QCM de compréhension</td></tr>
+    </table></div>
+  </div>
+
+  <h2>Cours</h2>
+  <div class="card">
+    <h3>1. Les failles de Crypto1</h3>
+    <p>Le chiffrement <b>Crypto1</b> (48 bits) est cassé publiquement depuis 2008. La <i>darkside attack</i> exploite une faille du protocole d'authentification pour retrouver une clé bit par bit sans connaître de clé valide au préalable ; une fois une clé de secteur connue, la <i>nested authentication</i> accélère la récupération des autres clés.</p>
+    <h3>2. L'attaque relais</h3>
+    <p>Deux appareils complices (« ghost » et « leech ») relaient en temps réel la communication entre un tag légitime et un lecteur distant, sans jamais casser aucune clé.</p>
+    <h3>3. Outils dédiés</h3>
+    <p>Le <b>Proxmark3</b> (polyvalent, bas niveau) et le <b>Flipper Zero</b> (grand public) sont les références du domaine, en complément du kit SDR/RC522 utilisé dans ce module. Ce sont ces outils qui permettraient de contourner la défense construite en séance 7, en clonant un secteur entier plutôt que le seul UID.</p>
+  </div>
+
+  <h2>Atelier</h2>
+  <div class="card">
+    <h3>Étape 1 : visionner la démonstration</h3>
+    <p>Visionnez la démonstration commentée fournie par l'enseignant (darkside ou attaque relais).</p>
+    <h3>Étape 2 : identifier les étapes techniques</h3>
+    <p>Notez le matériel utilisé et les grandes étapes de l'attaque.</p>
+    <h3>Étape 3 : analyser en groupe</h3>
+    <p>Discutez des prérequis attaquant et des contre-mesures envisageables — en lien avec ce que vous avez construit en séance 7.</p>
+    <h3>Étape 4 : QCM</h3>
+    <p>Répondez individuellement au QCM de compréhension distribué par l'enseignant.</p>
+  </div>
+
+  <div class="livrable"><b>Livrable :</b> QCM de compréhension</div>
+
+  <h2>Glossaire de la séance</h2>
+  <div class="card"><p class="note">Aucun nouvel acronyme introduit dans cette séance.</p></div>
+
+  <div class="nav-foot">
+    <a href="seance-9.html">← Séance 9</a>
+    <a href="seance-11.html">Séance 11 : contre-mesures</a>
+  </div>
+</main>
+</body>
+</html>
