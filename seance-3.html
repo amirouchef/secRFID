@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Séance 3 — Chaîne SDR complète : calibration et capture LF</title>
+<title>Séance 3 — Prise en main du SDR</title>
 <style>
 :root{
   --bg:#f4f2ec; --surface:#ffffff; --surface-2:#eceae2;
@@ -24,8 +24,8 @@
   --border:#2e3638; color-scheme: dark;
 }
 *{box-sizing:border-box;}
-html{scroll-padding-top:5rem;}
-body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6;padding-bottom:env(safe-area-inset-bottom,0px);}
+html{scroll-padding-top:4.5rem;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.6;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
 header{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--border);padding:.9rem 1.2rem;padding-top:calc(.9rem + env(safe-area-inset-top,0px));display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
 header h1{font-size:1rem;margin:0;}
 header h1 span{color:var(--accent);font-family:var(--mono);font-size:.85rem;display:block;font-weight:600;}
@@ -33,34 +33,42 @@ header a.back{font-size:.78rem;color:var(--text-dim);text-decoration:none;border
 header a.back:hover{color:var(--accent);border-color:var(--accent);}
 main{max-width:760px;margin:0 auto;padding:2rem 1.2rem 5rem;}
 h2{font-size:1.1rem;color:var(--accent-2);text-transform:uppercase;letter-spacing:.06em;margin:2.2rem 0 .8rem;}
-h2.titre{color:var(--text);text-transform:none;letter-spacing:0;font-size:1.5rem;margin:.6rem 0 0;}
-h3{font-size:.95rem;color:var(--accent);margin:1.3rem 0 .4rem;}
-h3:first-child{margin-top:0;}
-p{margin:.5rem 0;}
+h2:first-child{margin-top:0;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.5rem;}
-.badge{display:inline-block;font-family:var(--mono);font-size:.72rem;background:var(--surface-2);color:var(--accent);padding:.2rem .6rem;border-radius:6px;}
-.badge.materiel{color:var(--accent-2);}
-.meta-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
+ul.steps{margin:0;padding-left:1.2rem;}
+ul.steps li{margin-bottom:.5rem;}
 .livrable{margin-top:1.5rem;padding:.8rem 1rem;background:var(--surface-2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;}
 .livrable b{color:var(--accent);}
-.alerte{margin:1rem 0;padding:.8rem 1rem;background:var(--surface-2);border-left:3px solid var(--accent-2);border-radius:0 8px 8px 0;}
-.alerte b{color:var(--accent-2);}
-.resultat{margin:.6rem 0;padding:.6rem .9rem;background:var(--surface-2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;font-size:.9rem;}
-.resultat b{color:var(--accent);}
-ol,ul{margin:.4rem 0;padding-left:1.2rem;}
-li{margin-bottom:.4rem;}
-code{font-family:var(--mono);font-size:.85em;background:var(--surface-2);padding:.1rem .3rem;border-radius:4px;}
-pre{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;overflow-x:auto;font-family:var(--mono);font-size:.78rem;line-height:1.5;margin:.6rem 0;}
-pre code{background:none;padding:0;font-size:inherit;}
+.badge{display:inline-block;font-family:var(--mono);font-size:.72rem;background:var(--surface-2);color:var(--accent);padding:.2rem .6rem;border-radius:6px;}
+.nav-foot{display:flex;justify-content:space-between;margin-top:2.5rem;font-size:.85rem;}
+.nav-foot a{color:var(--text-dim);text-decoration:none;}
+.nav-foot a:hover{color:var(--accent);}
+h3{font-size:.95rem;color:var(--accent);margin:1.1rem 0 .4rem;}
+h3:first-child{margin-top:0;}
+p{margin:.5rem 0;}
 .overflow{overflow-x:auto;margin-top:.5rem;}
 table{width:100%;border-collapse:collapse;font-size:.85rem;}
 th,td{text-align:left;padding:.45rem .55rem;border-bottom:1px solid var(--border);vertical-align:top;}
 th{color:var(--text-dim);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;}
-.note{font-size:.85rem;color:var(--text-dim);}
-.nav-foot{display:flex;justify-content:space-between;margin-top:2.5rem;font-size:.85rem;}
-.nav-foot a{color:var(--text-dim);text-decoration:none;}
-.nav-foot a:hover{color:var(--accent);}
-.dump{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;font-family:var(--mono);font-size:.74rem;overflow-x:auto;white-space:pre;line-height:1.5;}
+ol.steps{margin:0;padding-left:1.2rem;}
+ol.steps li{margin-bottom:.6rem;}
+.note{font-size:.85rem;color:var(--text-dim);margin-top:.8rem;}
+.meta-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
+.badge.materiel{color:var(--accent-2);}
+.step-block{border-left:3px solid var(--border);padding:.2rem 0 .2rem 1rem;margin-bottom:1.1rem;}
+.step-block.check{border-left-color:var(--accent);}
+.step-block h4{margin:0 0 .3rem;font-size:.92rem;}
+.step-block .result{font-size:.82rem;color:var(--accent);margin-top:.35rem;}
+.step-block .trouble{font-size:.82rem;color:var(--text-dim);margin-top:.3rem;}
+.step-block .trouble b{color:var(--accent-2);}
+table.selfeval{font-size:.82rem;}
+table.selfeval th{text-align:center;}
+table.selfeval td:not(:first-child){text-align:center;}
+table.selfeval td:first-child{font-size:.85rem;}
+.alert{border-left:3px solid var(--accent-2);background:var(--surface-2);padding:.6rem .9rem;border-radius:0 8px 8px 0;margin:.7rem 0;font-size:.88rem;}
+.phase{font-size:1rem;color:var(--text);margin:1.6rem 0 .6rem;padding-bottom:.3rem;border-bottom:2px solid var(--accent);}
+.chain{font-family:var(--mono);font-size:.82rem;background:var(--surface-2);padding:.6rem .8rem;border-radius:8px;overflow-x:auto;white-space:nowrap;margin:.5rem 0;}
+ul.tight{margin:.3rem 0;padding-left:1.2rem;}
 </style>
 </head>
 <body>
@@ -71,79 +79,235 @@ th{color:var(--text-dim);font-size:.68rem;text-transform:uppercase;letter-spacin
 <main>
   <div class="meta-row">
     <span class="badge">1h30</span>
-    <span class="badge materiel">🧰 NESDR Smart V5 · Ham It Up Nano · adaptateur SMA · câble micro-USB · MLA-30 Plus · PC</span>
+    <span class="badge materiel">🧰 NESDR Smart V5 · antenne VHF-UHF · Ham It Up Nano · adaptateur SMA m-m · câble micro-USB · MLA-30 Plus (boucle + préampli) · interface MLA-30 · PC</span>
   </div>
-  <h2 class="titre">Chaîne SDR complète : calibration et capture LF</h2>
-  
+  <h2 style="color:var(--text);text-transform:none;letter-spacing:0;font-size:1.5rem;margin-top:.6rem;">Prise en main du SDR</h2>
 
-  <h2>Déroulé</h2>
+  <h2>Objectifs de la séance</h2>
   <div class="card">
-    <div class="overflow"><table>
-      <tr><th>Durée</th><th>Contenu</th></tr>
-      <tr><td>10 min</td><td>Cours : calibration, modulation LF, aperçu HF</td></tr><tr><td>15 min</td><td>Assembler la chaîne avec le Ham It Up Nano</td></tr><tr><td>15 min</td><td>Configurer le décalage de fréquence (Shift/Offset)</td></tr><tr><td>20 min</td><td>Calibrer sur France Inter grandes ondes (162 kHz) et mesurer le PPM</td></tr><tr><td>20 min</td><td>Capturer un badge LF 125 kHz</td></tr><tr><td>5 min</td><td>Démonstration HF 13,56 MHz par l'enseignant</td></tr><tr><td>5 min</td><td>Auto-évaluation et livrable</td></tr>
-    </table></div>
+    <p>À la fin de la séance, vous saurez :</p>
+    <ul class="tight">
+      <li>expliquer l’architecture d’un SDR et pourquoi un up-converter est nécessaire sous ~24 MHz ;</li>
+      <li>monter, alimenter et configurer un poste SDR complet, en validant chaque étape ;</li>
+      <li>utiliser SDR# : source, gain, mode de démodulation, waterfall, décalage de fréquence ;</li>
+      <li>diagnostiquer une chaîne qui ne reçoit rien, couche par couche.</li>
+    </ul>
+    <p class="note">Planning indicatif : cours 20 min · phase A 25 min · phase B 30 min · schéma et auto-évaluation 15 min (à terminer hors séance si besoin).</p>
   </div>
 
   <h2>Cours</h2>
   <div class="card">
-    <h3>1. Lecture du spectre et calibration</h3>
-    <p>Le <b>spectre</b> affiche l'amplitude en fonction de la fréquence ; le <b>waterfall</b> empile ces spectres dans le temps. Un gain trop élevé sature le récepteur, un gain trop faible noie le signal dans le bruit. Même avec un TCXO, un léger écart de fréquence subsiste, exprimé en <b>PPM</b> (parties par million), qu'on corrige en comparant la fréquence affichée d'une émission connue à sa fréquence théorique.</p>
-    <h3>2. Modulation des badges LF</h3>
-    <p>Les badges 125 kHz codent leurs données par <b>ASK</b> (amplitude) ou <b>FSK</b> (fréquence). Standards courants : <b>EM4100</b> (lecture seule, trame 64 bits) et <b>HID Prox</b>. À 125 kHz, la largeur de bande utile est très étroite, ce qui facilite la capture une fois l'up-converter correctement calé.</p>
-    <h3>3. Aperçu du HF 13,56 MHz</h3>
-    <p>En HF, le lecteur émet une porteuse continue ; le tag répond par <i>modulation de charge</i>, visible comme des bandes latérales autour de la porteuse. Cette capture sera <b>démontrée par l'enseignant</b> en fin de séance plutôt que manipulée individuellement, faute de temps.</p>
+    <h3>1. Architecture d’un SDR</h3>
+    <p>Un <b>SDR</b> numérise le signal radio le plus tôt possible : antenne → étage RF → convertisseur analogique-numérique (<b>ADC</b>) → filtrage, démodulation et affichage en logiciel. Le même matériel peut ainsi recevoir de nombreux types de signaux.</p>
+    <h3>2. Pourquoi un up-converter ?</h3>
+    <p>Le tuner R820T2 de la NESDR reçoit bien à partir d’environ 24 MHz. La fiche annonce 100 kHz, mais cette valeur correspond au mode <i>direct sampling</i>, qui contourne le tuner et offre une sensibilité médiocre. Or le RFID LF (125 kHz) et le HF (13,56 MHz) sont bien en dessous de 24 MHz.</p>
+    <p>Le <b>Ham It Up Nano</b> mélange le signal reçu avec un oscillateur local de <b>125 MHz</b> : un signal à 7 MHz ressort à 132 MHz, une zone que le R820T2 reçoit très bien. Le logiciel soustrait ensuite ce décalage (<i>shift</i>) pour réafficher la vraie fréquence.</p>
+    <h3>3. Rôle du TCXO et stabilité</h3>
+    <p>Un quartz ordinaire dérive avec la température ; un <b>TCXO</b> (<i>Temperature Compensated Crystal Oscillator</i>) compense cette dérive. Deux oscillateurs interviennent dans la chaîne : l’horloge de la NESDR (TCXO, environ 0,5 ppm) et l’oscillateur local du Nano (stabilité annoncée de l’ordre de 0,5 ppm). L’erreur de ce dernier est <b>absolue</b> : 0,5 ppm × 125 MHz ≈ 60 Hz, quelle que soit la fréquence réglée. L’erreur de la NESDR, elle, s’applique à la fréquence du tuner (vers 132 MHz) : 0,5 ppm × 132 MHz ≈ 66 Hz, du même ordre. Elle sera mesurée et corrigée en séance 4.</p>
+    <h3>4. Antennes : choisir selon la bande</h3>
+    <p>L’antenne <b>VHF-UHF</b> (brins télescopiques) convient à la FM, à ~100 MHz, et reçoit la NESDR seule. La <b>MLA-30 Plus</b> est une boucle active pour 500 kHz–30 MHz : elle se place derrière le Nano. Attention : le RFID LF (125 kHz) est <b>sous</b> sa plage ; le HF (13,56 MHz) est dedans. Une <b>boucle</b> capte surtout le champ magnétique, ce qui la rend moins sensible au bruit électrique et la rend directive.</p>
+    <h3>5. SDR#</h3>
+    <p>SDR# (Windows) affiche le spectre et le <b>waterfall</b>, règle le gain, choisit le mode de démodulation (WFM, AM…) et applique un décalage de fréquence pour corriger l’up-conversion.</p>
   </div>
 
   <h2>Atelier guidé pas à pas</h2>
   <div class="card">
-    <p><b>Objectif :</b> ajouter l'up-converter à la chaîne validée la semaine dernière, la calibrer, et capturer un vrai signal LF.</p>
-    <p><b>Matériel :</b> NESDR Smart V5, Ham It Up Nano, adaptateur SMA mâle-mâle, câble micro-USB, antenne <b>MLA-30 Plus</b>, PC.</p>
+    <p><b>Objectif :</b> monter et valider un poste SDR complet en deux phases. Phase A : la NESDR seule reçoit la FM, ce qui prouve que clé, driver et logiciel fonctionnent. Phase B : on ajoute le Nano et la boucle MLA-30 Plus, on configure le décalage de 125 MHz et on reçoit un signal HF.</p>
+    <p><b>Règle d’or :</b> ne passez à l’étape suivante qu’une fois le « résultat attendu » obtenu. Un seul élément ajouté à la fois : si ça ne marche plus, la cause est dans le dernier ajout.</p>
+    <div class="alert"><b>Manipulation des connecteurs SMA :</b> vissez à la main, sans outil, en tournant uniquement l’écrou du connecteur (jamais le câble ni l’antenne). Débranchez toujours l’USB de la NESDR avant de modifier le montage RF.</div>
 
-    <h3>Étape 1 : assembler la chaîne</h3>
-    <p>Dans cet ordre précis, sans forcer : <b>antenne MLA-30 Plus → Ham It Up Nano → adaptateur SMA-SMA → clé NESDR</b>. Alimentez le Ham It Up Nano avec le câble micro-USB.</p>
-    <p class="note"><b>Pourquoi la MLA-30 Plus et pas le kit VHF-UHF ?</b> Le fouet VHF-UHF est inefficace en-dessous de 30 MHz ; la MLA-30 Plus est conçue pour cette plage.</p>
+    <div class="step-block check">
+      <h4>Étape 0 — Identifier le matériel</h4>
+      <p>Posez devant vous et nommez chaque pièce (voir la <a href="materiel.html" style="color:var(--accent);">page Matériel</a>). Pour distinguer les deux boîtiers Nooelec : la <b>NESDR</b> n’a qu’un connecteur SMA et une prise USB-A ; le <b>Nano</b> a deux connecteurs SMA (entrée et sortie) et un port micro-USB (à vérifier sur vos exemplaires).</p>
+      <p class="result">✓ Résultat attendu : chaque pièce est nommée sans hésitation.</p>
+    </div>
 
-    <h3>Étape 2 : connecter et détecter</h3>
-    <p>Reliez la clé NESDR au PC par USB et sélectionnez-la dans le logiciel.</p>
-    <p class="note"><b>Si rien n'apparaît :</b> autre port USB, revérifiez le driver Zadig.</p>
+    <div class="step-block">
+      <h4>Étape 1 — Télécharger et préparer SDR#</h4>
+      <ol class="steps">
+        <li>Téléchargez SDR# depuis le site officiel d’Airspy (page Download), archive pour Windows.</li>
+        <li>Décompressez l’archive dans un dossier à vous (pas depuis l’archive directement).</li>
+        <li>Lancez <b>InstallRTL.bat</b> dans ce dossier : il récupère la bibliothèque et l’outil <b>Zadig</b> pour les clés RTL.</li>
+      </ol>
+      <p class="result">✓ Résultat attendu : le dossier contient <b>SDRSharp.exe</b> et <b>zadig.exe</b>.</p>
+      <p class="trouble"><b>Si le script échoue :</b> vérifiez l’accès Internet du poste et les droits sur le dossier.</p>
+    </div>
 
-    <h3>Étape 3 : configurer le décalage de fréquence</h3>
-    <ul>
-      <li><b>SDR#</b> : panneau <i>Source</i> → <i>Correction (ppm)</i> → cocher <b>Shift</b> → entrer <b>-125000000</b> (négatif, particularité de SDR#).</li>
-      <li><b>SDR++</b> : panneau <i>Source</i> → champ <b>Offset</b> → entrer <b>125000000</b> (positif).</li>
-    </ul>
-    <p>Entrez ensuite directement la <b>fréquence réelle visée</b> (ex. 162 000 Hz).</p>
-    <p class="note"><b>Pourquoi le négatif sur SDR# ?</b> SDR# calcule la fréquence matérielle comme <i>fréquence affichée − Shift</i>. Avec un Shift positif, impossible de descendre sous ~123,8 MHz affichés (symptôme caractéristique de l'erreur de signe).</p>
-    <p class="note"><b>Peigne de pics très réguliers sur tout l'écran :</b> presque certainement du bruit parasite, pas un vrai signal — vérifiez le signe du Shift/Offset.</p>
+    <h3 class="phase">Phase A — NESDR seule, antenne VHF-UHF, réception FM</h3>
+    <div class="chain">antenne VHF-UHF ─SMA─► NESDR ─USB─► PC</div>
 
-    <h3>Étape 4 : calibrer sur un signal connu</h3>
-    <p>Tunez sur <b>162 000 Hz</b> (France Inter grandes ondes, émetteur d'Allouis, très puissant), mode <b>AM</b>, bande passante ~9000 Hz. Si le gain sature, réduisez le RF Gain.</p>
-    <div class="resultat">✓ Résultat attendu : pic net à 162 kHz et audio clair. Mesurez l'écart avec 162 000 Hz pour calculer votre correction PPM.</div>
-    <p class="note">Test optionnel : <b>DCF77</b> à 77,5 kHz (signal horaire allemand, plus faible, sans audio).</p>
+    <div class="step-block">
+      <h4>Étape A1 — Montage</h4>
+      <p>Vissez l’antenne VHF-UHF sur le connecteur SMA de la NESDR, puis déployez les brins à environ 75 cm (un quart d’onde à 100 MHz). Ne branchez pas encore l’USB.</p>
+      <p class="result">✓ Résultat attendu : l’antenne est vissée, droite, sans jeu.</p>
+    </div>
 
-    <h3>Étape 5 : capturer un badge LF 125 kHz</h3>
-    <p>Approchez le badge/la carte d'un lecteur LF actif si disponible, ou chargez la capture de référence fournie par l'enseignant. Repérez la modulation sur le waterfall (ASK ou FSK) et comparez avec un diagramme théorique de trame EM4100.</p>
+    <div class="step-block">
+      <h4>Étape A2 — Installer le driver (Zadig)</h4>
+      <ol class="steps">
+        <li>Branchez la NESDR sur un port USB du PC.</li>
+        <li>Lancez <b>zadig.exe</b>, puis menu <b>Options → List All Devices</b>.</li>
+        <li>Dans la liste, choisissez <b>Bulk-In, Interface (Interface 0)</b> : c’est la clé RTL.</li>
+        <li>Vérifiez que le driver cible est <b>WinUSB</b>, puis cliquez sur <b>Replace Driver</b> et attendez la confirmation.</li>
+      </ol>
+      <p class="trouble"><b>Attention :</b> ne remplacez jamais le driver d’un autre périphérique de la liste (clavier, webcam…). En cas de doute, ne cliquez pas et appelez l’enseignant.</p>
+      <p class="result">✓ Résultat attendu : Zadig affiche que le driver a été installé avec succès.</p>
+    </div>
 
-    <h3>Étape 6 : démonstration HF (enseignant)</h3>
-    <p>L'enseignant règle le SDR sur 13,56 MHz et positionne l'antenne près d'un RC522 en cours de lecture, pour montrer la porteuse et ses bandes latérales.</p>
-  </div>
+    <div class="step-block">
+      <h4>Étape A3 — Configurer SDR#</h4>
+      <ol class="steps">
+        <li>Lancez <b>SDRSharp.exe</b>. Dans <b>Source</b>, choisissez <b>RTL-SDR (USB)</b>.</li>
+        <li>Cliquez sur l’icône d’<b>engrenage</b> de la source et réglez : <i>Sampling mode</i> = <b>Quadrature sampling</b> ; <i>Sample rate</i> = <b>2.4 MSPS</b> (ou 2.048 si le son saccade) ; <i>RTL AGC</i> et <i>Tuner AGC</i> décochés ; <i>RF Gain</i> au milieu de la plage ; <i>Frequency correction</i> = 0 ppm.</li>
+        <li>Vérifiez que la case <b>Shift</b> est <b>décochée</b> (phase A).</li>
+        <li>Cliquez sur <b>Play</b> (▶).</li>
+      </ol>
+      <p class="result">✓ Résultat attendu : le spectre et le waterfall défilent, sans message d’erreur.</p>
+      <p class="trouble"><b>Si rien n’apparaît :</b> autre port USB, autre câble, retour à l’étape A2.</p>
+    </div>
 
-  <h2>Auto-évaluation</h2>
-  <div class="card">
+    <div class="step-block check">
+      <h4>Étape A4 — Recevoir une station FM</h4>
+      <ol class="steps">
+        <li>Dans le panneau <b>Radio</b>, choisissez le mode <b>WFM</b> (bande passante ~180-200 kHz).</li>
+        <li>Saisissez la fréquence d’une station locale (ex. en Île-de-France : 105,1 MHz ou 93,5 MHz, à adapter à votre lieu) en cliquant sur les chiffres de l’afficheur.</li>
+        <li>Réglez le volume ; ajustez le <b>RF Gain</b> jusqu’à un signal propre.</li>
+      </ol>
+      <p class="result">✓ Résultat attendu : une station FM audible, et sur le waterfall une bande verticale d’environ 200 kHz de large.</p>
+      <p class="trouble"><b>Gain :</b> trop faible, le signal est noyé ; trop fort, des stations fantômes apparaissent et le son sature. Cherchez le meilleur compromis.</p>
+      <p class="note">📸 Capture n°1 : waterfall avec la station FM identifiée (fréquence visible).</p>
+    </div>
+
+    <h3 class="phase">Phase B — Chaîne HF complète : MLA-30 Plus + Nano + NESDR</h3>
+    <div class="chain">boucle + préampli ─coax─► interface MLA-30 ─SMA─► Nano (IN → OUT) ─SMA m-m─► NESDR ─USB─► PC</div>
+    <div class="alert"><b>Danger pour le matériel :</b> l’interface MLA-30 joue le rôle de <b>Bias-T</b> : elle fait passer du courant continu (5 V USB vers le préampli) dans le câble coaxial. Le connecteur côté <b>antenne</b> de l’interface porte ce courant continu. Il ne doit <b>jamais</b> être relié au Nano. Seul le connecteur côté <b>récepteur</b> va vers le Nano (repères gravés sur le boîtier ; voir la notice). Laissez aussi l’option <b>Bias-Tee</b> de la NESDR <b>décochée</b> dans SDR#.</div>
+
+    <div class="step-block">
+      <h4>Étape B1 — Arrêter la phase A</h4>
+      <p>Cliquez sur <b>Stop</b> dans SDR#, fermez-le, puis <b>débranchez l’USB de la NESDR</b> et retirez l’antenne VHF-UHF.</p>
+      <p class="result">✓ Résultat attendu : la NESDR est isolée, sans antenne, sans USB.</p>
+    </div>
+
+    <div class="step-block">
+      <h4>Étape B2 — Assembler l’antenne</h4>
+      <p>Fixez la boucle sur le boîtier du préamplificateur avec ses écrous, puis raccordez le câble coaxial du préampli au connecteur <b>côté antenne</b> de l’interface MLA-30.</p>
+      <p class="result">✓ Résultat attendu : boucle fixée, coaxial branché, USB de l’interface non branché.</p>
+    </div>
+
+    <div class="step-block">
+      <h4>Étape B3 — Relier l’interface au Nano, puis le Nano à la NESDR</h4>
+      <ol class="steps">
+        <li>Reliez le connecteur <b>côté récepteur</b> de l’interface à l’entrée <b>IN</b> du Nano avec le câble SMA fourni.</li>
+        <li>Vissez l’adaptateur SMA mâle-mâle sur la sortie <b>OUT</b> du Nano.</li>
+        <li>Vissez l’autre extrémité de l’adaptateur sur la NESDR.</li>
+      </ol>
+      <p class="result">✓ Résultat attendu : la chaîne boucle → interface → Nano → NESDR est continue et sans tension sur les connecteurs.</p>
+      <p class="trouble"><b>Un doute sur le sens de l’interface ?</b> Demandez à l’enseignant avant de brancher. <b>Un connecteur résiste ?</b> Ne forcez pas : vérifiez le type (mâle/femelle) et l’entrée/sortie du Nano.</p>
+    </div>
+
+    <div class="step-block">
+      <h4>Étape B4 — Alimenter, dans cet ordre</h4>
+      <p>On alimente d’abord les éléments RF, puis on connecte la NESDR au PC en dernier.</p>
+      <ol class="steps">
+        <li>Câble micro-USB sur le <b>Nano</b>, l’autre bout sur une prise USB (chargeur ou batterie de préférence).</li>
+        <li>Câble USB de l’<b>interface MLA-30</b> sur une source USB 5 V propre (chargeur ou batterie ; évitez le PC, très bruité en HF).</li>
+        <li>USB de la <b>NESDR</b> sur le PC.</li>
+      </ol>
+      <p class="result">✓ Résultat attendu : les trois éléments sont alimentés ; rien ne chauffe de façon anormale.</p>
+    </div>
+
+    <div class="step-block">
+      <h4>Étape B5 — Placer la boucle</h4>
+      <p>Éloignez la boucle des PC, écrans et chargeurs (au moins 1 à 2 m, près d’une fenêtre si possible) et fixez-la sur un support <b>non métallique</b>. Une boucle est directive : tournez-la pour réduire le bruit.</p>
+      <p class="result">✓ Résultat attendu : la boucle est dégagée et stable.</p>
+    </div>
+
+    <div class="step-block">
+      <h4>Étape B6 — Activer le décalage dans SDR#</h4>
+      <ol class="steps">
+        <li>Relancez SDR#, source <b>RTL-SDR (USB)</b>, mêmes réglages qu’en A3.</li>
+        <li><b>Shift encore décoché</b>, cliquez sur <b>Play</b>, mode <b>WFM</b>, fréquence <b>105,1 MHz</b> : la FM doit être <b>absente ou très faible</b>. Le signal passe maintenant par la boucle et le Nano, plus par l’antenne VHF-UHF.</li>
+        <li>Cochez <b>Shift</b> et saisissez <b>-125000000</b> (en Hz, signe négatif dans SDR# Studio).</li>
+        <li>L’afficheur de fréquence tombe à <b>0</b> : c’est normal (le tuner reste à 125 MHz, soit la valeur du décalage). Vous saisirez la fréquence HF à l’étape suivante.</li>
+      </ol>
+      <p class="result">✓ Résultat attendu : FM absente sans Shift, puis spectre et waterfall qui défilent sans erreur avec Shift coché (-125000000). On voit la bande HF, pas la FM.</p>
+      <p class="trouble"><b>Signe du Shift :</b> la valeur à saisir (125000000 ou -125000000) dépend de la version de SDR#. Le bon réglage est celui qui affiche 0 quand le tuner est à 125 MHz. Vérifiez sur votre version.</p>
+    </div>
+
+    <div class="step-block check">
+      <h4>Étape B7 — Recevoir un signal HF connu</h4>
+      <ol class="steps">
+        <li>Mode <b>AM</b>, bande passante ~10 kHz.</li>
+        <li>Cliquez sur les chiffres de l’afficheur et saisissez la fréquence HF voulue (SDR# règle le tuner tout seul). Balayez une bande de radiodiffusion en ondes courtes. L’enseignant indique les fréquences à tester à l’heure de la séance (par exemple 9,5-9,9 MHz en journée, vers 6 MHz le soir).</li>
+        <li>Cherchez des signaux <b>larges (~10 kHz)</b> qui bougent avec le son. Les raies fines et régulièrement espacées sont du bruit de découpage (chargeurs, alimentations), pas des stations.</li>
+        <li>Ajustez le <b>RF Gain</b> (baissez-le si le signal est écrasé : la boucle active est déjà amplifiée) et tournez la boucle pour améliorer le signal.</li>
+      </ol>
+      <p class="result">✓ Résultat attendu : au moins une station AM identifiée, affichée à la <b>bonne fréquence</b>.</p>
+      <p class="trouble"><b>Rien reçu ?</b> Contrôlez dans l’ordre : alimentation du Nano et de l’interface, sens de l’interface (étape B3), Shift coché avec la bonne valeur, gain, heure de la journée, bruit local. La réception en ondes courtes dépend de la propagation : l’enseignant prévoit une fréquence de repli vérifiée avant la séance.</p>
+      <p class="note">📸 Capture n°2 : SDR# avec Shift coché (-125000000) et la station HF identifiée (si aucune station n’est reçue : un signal HF bien visible, fréquence affichée, à compléter plus tard).</p>
+    </div>
+
+    <div class="step-block">
+      <h4>Étape B8 — Preuve du décalage</h4>
+      <p>Sans changer la station (ni un signal : n’importe quel signal bien visible convient) : notez la fréquence affichée puis <b>décochez Shift</b>. L’affichage montre maintenant la vraie fréquence du tuner, environ <b>125 MHz de plus</b> (7 MHz → ~132 MHz), le signal restant en place sur le spectre. Recochez <b>Shift</b> : la fréquence redevient correcte.</p>
+      <p class="result">✓ Résultat attendu : vous avez vu le décalage de 125 MHz « apparaître » puis être corrigé par le logiciel.</p>
+    </div>
+
+    <div class="step-block">
+      <h4>Étape B9 — Schématiser le câblage</h4>
+      <p>Dessinez la chaîne de la phase B, en nommant chaque élément et chaque connecteur (IN/OUT du Nano, côté antenne/côté récepteur de l’interface) et en indiquant où passe chaque alimentation. Ajoutez en une ligne la différence avec la phase A.</p>
+    </div>
+
+    <h3 class="phase">Récapitulatif des réglages SDR#</h3>
     <div class="overflow"><table>
-      <tr><th style="text-align:left;">Compétence</th><th>Acquis</th><th>En cours</th><th>Non acquis</th></tr>
-      <tr><td>J'ai assemblé la chaîne complète sans forcer les connecteurs</td><td>☐</td><td>☐</td><td>☐</td></tr>
-      <tr><td>J'ai appliqué le bon décalage de fréquence (bon signe selon le logiciel)</td><td>☐</td><td>☐</td><td>☐</td></tr>
-      <tr><td>J'ai capté France Inter et calculé une correction PPM</td><td>☐</td><td>☐</td><td>☐</td></tr>
-      <tr><td>J'ai identifié une modulation ASK ou FSK sur le badge LF</td><td>☐</td><td>☐</td><td>☐</td></tr>
+      <tr><th>Réglage</th><th>Phase A (FM)</th><th>Phase B (HF)</th></tr>
+      <tr><td>Source</td><td>RTL-SDR (USB)</td><td>RTL-SDR (USB)</td></tr>
+      <tr><td>Sampling mode</td><td>Quadrature sampling</td><td>Quadrature sampling</td></tr>
+      <tr><td>Sample rate</td><td>2.4 MSPS</td><td>2.4 MSPS</td></tr>
+      <tr><td>AGC (RTL / Tuner)</td><td>décochés</td><td>décochés</td></tr>
+      <tr><td>RF Gain</td><td>milieu, à ajuster</td><td>milieu, à ajuster</td></tr>
+      <tr><td>Shift</td><td>décoché</td><td>coché, -125000000 Hz (SDR# Studio)</td></tr>
+      <tr><td>Mode / bande passante</td><td>WFM / ~180-200 kHz</td><td>AM / ~10 kHz</td></tr>
+      <tr><td>Antenne</td><td>VHF-UHF</td><td>MLA-30 Plus + interface</td></tr>
     </table></div>
   </div>
 
-  <div class="livrable"><b>Livrable :</b> schéma de câblage annoté + capture LF annotée (ASK ou FSK) + valeur de correction PPM</div>
+  <div class="livrable"><b>Livrable :</b> schéma de câblage annoté du poste SDR complet (phase B) + capture n°1 (station FM identifiée) + capture n°2 (SDR# avec Shift -125000000 et station HF identifiée)</div>
+
+  <h2>Auto-évaluation</h2>
+  <div class="card">
+    <p class="note">À remplir individuellement ou en binôme avant de passer à la séance 4. Soyez honnête : ça sert à repérer ce qu’il faut revoir, pas à être noté.</p>
+    <div class="overflow">
+      <table class="selfeval">
+        <tr><th style="text-align:left;">Compétence</th><th>Acquis</th><th>En cours</th><th>Non acquis</th></tr>
+        <tr><td>Je sais identifier chaque élément de la chaîne SDR</td><td>☐</td><td>☐</td><td>☐</td></tr>
+        <tr><td>Phase A : mon SDR# reçoit et décode une station FM</td><td>☐</td><td>☐</td><td>☐</td></tr>
+        <tr><td>Phase B : j’ai monté et alimenté la chaîne dans le bon ordre et le bon sens</td><td>☐</td><td>☐</td><td>☐</td></tr>
+        <tr><td>J’ai appliqué le bon décalage (Shift) et je sais le vérifier</td><td>☐</td><td>☐</td><td>☐</td></tr>
+        <tr><td>Je peux expliquer pourquoi l’up-converter est nécessaire</td><td>☐</td><td>☐</td><td>☐</td></tr>
+        <tr><td>Je peux expliquer le rôle du TCXO</td><td>☐</td><td>☐</td><td>☐</td></tr>
+        <tr><td>Je sais ce que fait l’interface MLA-30 et pourquoi son sens compte</td><td>☐</td><td>☐</td><td>☐</td></tr>
+        <tr><td>Mon schéma de câblage est complet et annoté</td><td>☐</td><td>☐</td><td>☐</td></tr>
+      </table>
+    </div>
+    <p class="note">Au moins une case « Non acquis » ? Relisez la section correspondante ou demandez de l’aide avant la séance 4 : toute la suite du module s’appuie sur cette chaîne SDR.</p>
+  </div>
 
   <h2>Glossaire de la séance</h2>
   <div class="card">
-    <div class="overflow"><table><tr><th>Acronyme</th><th>Signification</th></tr><tr><td><b>PPM</b></td><td>Parties Par Million</td></tr><tr><td><b>AM</b></td><td>Amplitude Modulation</td></tr><tr><td><b>ASK</b></td><td>Amplitude Shift Keying</td></tr><tr><td><b>FSK</b></td><td>Frequency Shift Keying</td></tr></table></div>
+    <div class="overflow"><table><tr><th>Terme</th><th>Signification</th></tr>
+      <tr><td><b>SDR</b></td><td>Software Defined Radio : radio définie par logiciel</td></tr>
+      <tr><td><b>ADC</b></td><td>Analog to Digital Converter : convertisseur qui numérise le signal reçu</td></tr>
+      <tr><td><b>TCXO</b></td><td>Temperature Compensated Crystal Oscillator : oscillateur à quartz compensé en température</td></tr>
+      <tr><td><b>SMA</b></td><td>SubMiniature version A : connecteur RF utilisé sur la clé, le Nano et les antennes</td></tr>
+      <tr><td><b>RF</b></td><td>Radio Fréquence</td></tr>
+      <tr><td><b>Bias-T (Bias-Tee)</b></td><td>Dispositif qui injecte un courant continu dans un câble coaxial pour alimenter un préamplificateur à distance</td></tr>
+      <tr><td><b>Shift</b></td><td>Décalage de fréquence appliqué par le logiciel pour compenser l’up-converter (125 MHz)</td></tr>
+      <tr><td><b>WFM / AM</b></td><td>Modes de démodulation : FM large bande, modulation d’amplitude</td></tr>
+      <tr><td><b>Waterfall</b></td><td>Affichage du spectre en fonction du temps</td></tr>
+      <tr><td><b>Gain (RF / AGC)</b></td><td>Amplification du signal ; l’AGC la règle automatiquement</td></tr>
+      <tr><td><b>ppm</b></td><td>Partie par million : unité de précision d’une horloge</td></tr>
+    </table></div>
   </div>
 
   <div class="nav-foot">
